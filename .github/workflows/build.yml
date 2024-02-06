@@ -12,17 +12,15 @@ jobs:
       matrix:
         include:
           - platform: macos-latest
-            arch: x64
-          - platform: macos-latest
-            arch: arm64
+            runtime: osx
           - platform: ubuntu-latest
-            arch: x64
+            runtime: linux-x64
           - platform: ubuntu-latest
-            arch: arm64
+            runtime: linux-arm64
           - platform: ubuntu-latest
-            arch: arm
+            runtime: linux-arm
           - platform: windows-latest
-            arch: x64
+            runtime: win-x64
     
     runs-on: ${{ matrix.platform }}
     steps:
@@ -34,20 +32,18 @@ jobs:
         dotnet-version: 8.0.x
 
     - name: Build
-      env:
-        os: ${{ runner.os == 'Windows' && 'win' || runner.os == 'macOS' && 'osx' || 'linux' }}
       run: |
-        dotnet publish -c Release -r ${{ env.os }}-${{ matrix.arch }} -p:ImportByWildcardBeforeSolution=false -o build && 
+        dotnet publish -c Release -r ${{ matrix.runtime }} -p:ImportByWildcardBeforeSolution=false -o build && 
         cp -r Content build
 
     - name: Compress (Windows)
       run: |
-        Compress-Archive build/* Celeste64-${{ github.ref_name }}-${{ runner.os }}-${{ matrix.arch }}.zip
+        Compress-Archive build/* Celeste64-${{ github.ref_name }}-${{ matrix.runtime }}.zip
       if: runner.os == 'Windows'
     
     - name: Compress (macOS and Linux)
       run: |
-        cd build && zip -r ../Celeste64-${{ github.ref_name }}-${{ runner.os }}-${{ matrix.arch }}.zip *
+        cd build && zip -r ../Celeste64-${{ github.ref_name }}-${{ matrix.runtime }}.zip *
       if: runner.os != 'Windows'
 
     - name: Release (GitHub)
@@ -65,4 +61,4 @@ jobs:
           - **Windows:** 10 or later, x64
           - **Linux:** [Distro support list](https://github.com/dotnet/core/blob/main/release-notes/8.0/supported-os.md), x64, ARM64, and ARM32
           - **Mac:** Monterey or later, x64, and ARM64
-        files: Celeste64-${{ github.ref_name }}-${{ runner.os }}-${{ matrix.arch }}.zip
+        files: Celeste64-${{ github.ref_name }}-${{ matrix.runtime }}.zip
