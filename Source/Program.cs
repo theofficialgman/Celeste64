@@ -9,6 +9,8 @@ class Program
 	public static void Main(string[] args)
 	{
 		Log.Info($"Celeste 64 v.{Game.Version.Major}.{Game.Version.Minor}.{Game.Version.Build}");
+		// disable ARM64 SIMD until https://github.com/dotnet/runtime/pull/98150 makes it to .NET 8.0.x release
+		Environment.SetEnvironmentVariable ("DOTNET_EnableArm64AdvSimd", "0");
 
 		AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) =>
 		{
